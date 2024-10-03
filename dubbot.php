@@ -111,35 +111,35 @@ function get_dubbot_page_metadata($post_id) {
 }
 
 function enqueue_iframe_plugin_admin_scripts($hook) {
-    // Only load on post and page edit screens
-    if ($hook !== 'post.php' && $hook !== 'post-new.php') {
-        return;
-    }
+  $embed_key = get_option('embed_key');
+  // Only load on post and page edit screens
+  if (($hook !== 'post.php' && $hook !== 'post-new.php') || empty($embed_key)) {
+      return;
+  }
 
-    // Enqueue jQuery (if not already included)
-    wp_enqueue_script('jquery');
+  // Enqueue jQuery (if not already included)
+  wp_enqueue_script('jquery');
 
-    // Enqueue custom JavaScript for the modal
-    wp_enqueue_script('dubbot-iframe', plugins_url('dubbot-iframe.js', __FILE__), array('jquery'), null, true);
+  // Enqueue custom JavaScript for the modal
+  wp_enqueue_script('dubbot-iframe', plugins_url('dubbot-iframe.js', __FILE__), array('jquery'), null, true);
 
-    // Enqueue custom CSS for the modal
-    wp_enqueue_style('dubbot-iframe', plugins_url('dubbot-iframe.css', __FILE__));
+  // Enqueue custom CSS for the modal
+  wp_enqueue_style('dubbot-iframe', plugins_url('dubbot-iframe.css', __FILE__));
 
-    $post_id = isset($_GET['post']) ? intval($_GET['post']) : 0;
-    $iframe_url = get_dubbot_iframe_url($post_id);
-    $embed_key = get_option('embed_key');
-    $api_url = get_option('api_url');
-    $metadata = get_dubbot_page_metadata($post_id);
-    $localize_data = array(
-      'iframeURL' => $iframe_url,
-      'post_id' => $post_id,
-      'embed_key' => $embed_key,
-      'api_url' => $api_url,
-      'metadata' => $metadata,
-    );
+  $post_id = isset($_GET['post']) ? intval($_GET['post']) : 0;
+  $iframe_url = get_dubbot_iframe_url($post_id);
+  $api_url = get_option('api_url');
+  $metadata = get_dubbot_page_metadata($post_id);
+  $localize_data = array(
+    'iframeURL' => $iframe_url,
+    'post_id' => $post_id,
+    'embed_key' => $embed_key,
+    'api_url' => $api_url,
+    'metadata' => $metadata,
+  );
 
-    // Pass PHP variables to JavaScript
-    wp_localize_script('dubbot-iframe', 'dubbot', $localize_data);
+  // Pass PHP variables to JavaScript
+  wp_localize_script('dubbot-iframe', 'dubbot', $localize_data);
 }
 add_action('admin_enqueue_scripts', 'enqueue_iframe_plugin_admin_scripts');
 
