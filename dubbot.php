@@ -112,6 +112,7 @@ function get_dubbot_page_metadata($post_id) {
 
 function enqueue_iframe_plugin_admin_scripts($hook) {
   $embed_key = get_option('embed_key');
+  $api_url = get_option('api_url');
   // Only load on post and page edit screens
   if (($hook !== 'post.php' && $hook !== 'post-new.php') || empty($embed_key)) {
       return;
@@ -121,6 +122,7 @@ function enqueue_iframe_plugin_admin_scripts($hook) {
   wp_enqueue_script('jquery');
 
   // Enqueue custom JavaScript for the modal
+  wp_enqueue_script('dubbot-highlight', $api_url . '/embeds/highlight.js', null, null, true);
   wp_enqueue_script('dubbot-iframe', plugins_url('dubbot-iframe.js', __FILE__), array('jquery'), null, true);
 
   // Enqueue custom CSS for the modal
@@ -128,7 +130,6 @@ function enqueue_iframe_plugin_admin_scripts($hook) {
 
   $post_id = isset($_GET['post']) ? intval($_GET['post']) : 0;
   $iframe_url = get_dubbot_iframe_url($post_id);
-  $api_url = get_option('api_url');
   $metadata = get_dubbot_page_metadata($post_id);
   $localize_data = array(
     'iframeURL' => $iframe_url,
