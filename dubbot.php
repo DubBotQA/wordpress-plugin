@@ -7,6 +7,8 @@ Author: DubBot
 Author URI: https://dubbot.com
 */
 
+const DUBBOT_API_URL = 'https://api.dubbot.com';
+const EDITOR_SELECTOR = '#editor iframe';
 
 /* The Admin configuration stuff */
 function dubbot_register_settings() {
@@ -14,8 +16,12 @@ function dubbot_register_settings() {
   register_setting('dubbot_settings_group', 'embed_key');
 
   // API url (default: api.dubbot.com)
-  add_option('api_url', 'https://api.dubbot.com');
+  add_option('api_url', DUBBOT_API_URL);
   register_setting('dubbot_settings_group', 'api_url');
+
+  // editor selector
+  add_option('editor_selector', EDITOR_SELECTOR);
+  register_setting('dubbot_settings_group', 'editor_selector');
 }
 add_action('admin_init', 'dubbot_register_settings');
 
@@ -31,6 +37,9 @@ function dubbot_menu() {
 add_action('admin_menu', 'dubbot_menu');
 
 function dubbot_settings_page() {
+  // TODO: Closing php so we can insert HTML with PHP inside it feels gross.
+  // Is there some template-based thing we could do?
+  $is_advanced = (isset($_GET['advanced']) && $_GET['advanced'] == 'y');
   ?>
     <div class="wrap">
       <h1>DubBot Settings</h1>
@@ -46,6 +55,15 @@ function dubbot_settings_page() {
 
           // and api url
           $api_url = get_option('api_url');
+          if(!$api_url):
+            $api_url = DUBBOT_API_URL;
+          endif;
+
+          // and editor selector
+          $editor_selector = get_option('editor_selector');
+          if(!$editor_selector):
+            $editor_selector = EDITOR_SELECTOR;
+          endif;
         ?>
 
         <table class="form-table">
@@ -53,14 +71,25 @@ function dubbot_settings_page() {
             <th scope="row">Embed Key</th>
             <td>
               <input type="text" name="embed_key" value="<?php echo esc_attr($embed_key); ?>" />
+              <p><em>Contact <a href="mailto:help@dubbot.com">DubBot Support</a> to request an embed key.</em></p>
             </td>
           </tr>
+
           <tr valign="top">
+            <th scope="row">Editor Selector</th>
+            <td>
+              <input type="text" name="editor_selector" value="<?php echo esc_attr($editor_selector); ?>" />
+              <p><em>The CSS selector for the element containing the editor's content</em></p>
+            </td>
+          </tr>
+
+          <tr valign="top" style="display: <?php echo $is_advanced ? 'table-row' : 'none' ?>">
             <th scope="row">DubBot API URL</th>
             <td>
               <input type="text" name="api_url" value="<?php echo esc_attr($api_url); ?>" />
             </td>
           </tr>
+
         </table>
         <?php submit_button(); ?>
       </form>
@@ -81,6 +110,9 @@ function get_dubbot_url($post_id, $type) {
   $embed_key = get_option('embed_key');
   $permalink = get_permalink($post_id);
   $dubbot_host = get_option('api_url');
+  if(!$dubbot_host):
+    $dubbot_host = DUBBOT_API_URL;
+  endif;
 
   // Build the iframe URL with the embed key
   if (!empty($embed_key)) {
@@ -113,6 +145,7 @@ function get_dubbot_page_metadata($post_id) {
 function enqueue_iframe_plugin_admin_scripts($hook) {
   $embed_key = get_option('embed_key');
   $api_url = get_option('api_url');
+  $editor_selector = get_option('editor_selector');
   // Only load on post and page edit screens
   if (($hook !== 'post.php' && $hook !== 'post-new.php') || empty($embed_key)) {
       return;
@@ -120,6 +153,10 @@ function enqueue_iframe_plugin_admin_scripts($hook) {
 
   // Enqueue jQuery (if not already included)
   wp_enqueue_script('jquery');
+  wp_enqueue_script( 'jquery-ui-dialog');
+  wp_enqueue_script( 'jquery-ui-resizable');
+  wp_enqueue_style('jquery-ui-style', 'https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css');
+
 
   // Enqueue custom JavaScript for the modal
   wp_enqueue_script('dubbot-highlight', $api_url . '/embeds/highlight.js', null, null, true);
@@ -136,6 +173,7 @@ function enqueue_iframe_plugin_admin_scripts($hook) {
     'post_id' => $post_id,
     'embed_key' => $embed_key,
     'api_url' => $api_url,
+    'editor_selector' => $editor_selector,
     'metadata' => $metadata,
   );
 
