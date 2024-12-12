@@ -1,10 +1,12 @@
 <?php
 /*
-Plugin Name: DubBot Wordpress Plugin
+Plugin Name: DubBot
 Description: See DubBot results in WordPress
-Version: 1.0
+Version: 1.0.0
 Author: DubBot
 Author URI: https://dubbot.com
+License: GPL v2 or later
+License URI: https://www.gnu.org/licenses/gpl-2.0.html
 */
 
 const DUBBOT_API_URL = 'https://api.dubbot.com';
@@ -39,7 +41,7 @@ add_action('admin_menu', 'dubbot_menu');
 function dubbot_settings_page() {
   // TODO: Closing php so we can insert HTML with PHP inside it feels gross.
   // Is there some template-based thing we could do?
-  $is_advanced = (isset($_GET['advanced']) && $_GET['advanced'] == 'y');
+  $is_advanced = (isset($_GET['advanced']) && $_GET['advanced'] == 'y'); // phpcs:ignore
   ?>
     <div class="wrap">
       <h1>DubBot Settings</h1>
@@ -130,7 +132,8 @@ function get_dubbot_url($post_id, $type) {
 function get_dubbot_page_metadata($post_id) {
   try {
     $url = get_dubbot_json_url($post_id);
-    $response = @file_get_contents($url);
+    $request = wp_remote_get($url);
+    $response = wp_remote_retrieve_body($request);
     if ($response === false) {
       throw new Exception($url . " failed");
     }
@@ -141,31 +144,38 @@ function get_dubbot_page_metadata($post_id) {
     return ['total_issues_count' => 'N/A'];
   }
 }
-
-function enqueue_iframe_plugin_admin_scripts($hook) {
-  $embed_key = get_option('embed_key');
-  $api_url = get_option('api_url');
-  $editor_selector = get_option('editor_selector');
-  // Only load on post and page edit screens
-  if (($hook !== 'post.php' && $hook !== 'post-new.php') || empty($embed_key)) {
-      return;
+function enqueue_iframe_plugin_scripts($hook) {
+  if(!is_user_logged_in()){
+    return;
   }
+
+  $embed_key = get_option('embed_key');
+  if(empty($embed_key)) {
+    return;
+  }
+
+  $api_url = get_option('api_url');
+  $editor_selector = '.wp-site-blocks';
+
+  if ($hook == 'post.php') {
+    $editor_selector = get_option('editor_selector');
+  }
+
 
   // Enqueue jQuery (if not already included)
   wp_enqueue_script('jquery');
   wp_enqueue_script( 'jquery-ui-dialog');
   wp_enqueue_script( 'jquery-ui-resizable');
-  wp_enqueue_style('jquery-ui-style', 'https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css');
-
+  wp_enqueue_style('jquery-ui-css', plugin_dir_url(__FILE__) . 'css/jquery-ui.css', null, '1.0');
 
   // Enqueue custom JavaScript for the modal
-  wp_enqueue_script('dubbot-highlight', $api_url . '/embeds/highlight.js', null, null, true);
-  wp_enqueue_script('dubbot-iframe', plugins_url('dubbot-iframe.js', __FILE__), array('jquery'), null, true);
+  wp_enqueue_script('dubbot-highlight', $api_url . '/embeds/highlight.js', null, '1.0', true);
+  wp_enqueue_script('dubbot-iframe', plugin_dir_url(__FILE__) . 'js/dubbot-iframe.js', array('jquery'), '1.0', true);
 
   // Enqueue custom CSS for the modal
-  wp_enqueue_style('dubbot-iframe', plugins_url('dubbot-iframe.css', __FILE__));
+  wp_enqueue_style('dubbot-iframe', plugin_dir_url(__FILE__) . 'css/dubbot-iframe.css', null, '1.0');
 
-  $post_id = isset($_GET['post']) ? intval($_GET['post']) : 0;
+  $post_id = isset($_GET['post']) ? intval($_GET['post']) : 0; // phpcs:ignore
   $iframe_url = get_dubbot_iframe_url($post_id);
   $metadata = get_dubbot_page_metadata($post_id);
   $localize_data = array(
@@ -180,6 +190,17 @@ function enqueue_iframe_plugin_admin_scripts($hook) {
   // Pass PHP variables to JavaScript
   wp_localize_script('dubbot-iframe', 'dubbot', $localize_data);
 }
-add_action('admin_enqueue_scripts', 'enqueue_iframe_plugin_admin_scripts');
+add_action('admin_enqueue_scripts', 'enqueue_iframe_plugin_scripts');
+add_action('wp_enqueue_scripts', 'enqueue_iframe_plugin_scripts');
+
+function dubbot_add_settings_link($links) {
+    // Check if the plugin is active and add the settings link
+    $settings_link = '<a href="options-general.php?page=dubbot-settings">Settings</a>';
+    array_unshift($links, $settings_link); // Add the link at the beginning
+
+    return $links;
+}
+add_filter('plugin_action_links_' . plugin_basename(__FILE__), 'dubbot_add_settings_link');
+
 
 ?>
