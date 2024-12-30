@@ -1,5 +1,5 @@
 === DubBot ===
-Contributors: dubbot
+Contributors: syldubbot
 Donate link: https://dubbot.com
 Tags: accessibility, spelling, links, seo, web governance
 Requires at least: 5.0
