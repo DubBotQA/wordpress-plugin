@@ -2,36 +2,39 @@
 /*
 Plugin Name: DubBot
 Description: See DubBot results in WordPress
-Version: 1.0.0
+Version: 1.0.1
 Author: DubBot
 Author URI: https://dubbot.com
 License: GPL v2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 */
+if (!defined('ABSPATH')) exit;
 
 const DUBBOT_API_URL = 'https://api.dubbot.com';
-const EDITOR_SELECTOR = '#editor iframe';
+const DUBBOT_EDITOR_SELECTOR = '#editor iframe';
 
 /* The Admin configuration stuff */
 function dubbot_register_settings() {
+  $setting_defaults = array('type' => 'string', 'sanitize_callback' => 'sanitize_text_field');
+
   // embed key
-  register_setting('dubbot_settings_group', 'embed_key');
+  register_setting('dubbot_settings_group', 'dubbot_embed_key', $setting_defaults);
 
   // API url (default: api.dubbot.com)
-  add_option('api_url', DUBBOT_API_URL);
-  register_setting('dubbot_settings_group', 'api_url');
+  add_option('dubbot_api_url', DUBBOT_API_URL);
+  register_setting('dubbot_settings_group', 'dubbot_api_url', $setting_defaults);
 
   // editor selector
-  add_option('editor_selector', EDITOR_SELECTOR);
-  register_setting('dubbot_settings_group', 'editor_selector');
+  add_option('dubbot_editor_selector', DUBBOT_EDITOR_SELECTOR);
+  register_setting('dubbot_settings_group', 'dubbot_editor_selector', $setting_defaults);
 }
 add_action('admin_init', 'dubbot_register_settings');
 
 function dubbot_menu() {
     add_options_page(
-        'DubBot Settings',            // Page title
-        'DubBot',                     // Menu title
-        'manage_options',             // Capability
+        'DubBot Settings',     // Page title
+        'DubBot',              // Menu title
+        'manage_options',      // Capability
         'dubbot-settings',     // Menu slug
         'dubbot_settings_page' // Function to display the settings page
     );
@@ -52,19 +55,19 @@ function dubbot_settings_page() {
           // Output setting sections and their fields
           do_settings_sections('dubbot_settings_group');
 
-          // Get the stored embed_key value
-          $embed_key = get_option('embed_key');
+          // Get the stored dubbot_embed_key value
+          $dubbot_embed_key = get_option('dubbot_embed_key');
 
           // and api url
-          $api_url = get_option('api_url');
+          $api_url = get_option('dubbot_api_url');
           if(!$api_url):
             $api_url = DUBBOT_API_URL;
           endif;
 
           // and editor selector
-          $editor_selector = get_option('editor_selector');
+          $editor_selector = get_option('dubbot_editor_selector');
           if(!$editor_selector):
-            $editor_selector = EDITOR_SELECTOR;
+            $editor_selector = DUBBOT_EDITOR_SELECTOR;
           endif;
         ?>
 
@@ -72,7 +75,7 @@ function dubbot_settings_page() {
           <tr valign="top">
             <th scope="row">Embed Key</th>
             <td>
-              <input type="text" name="embed_key" value="<?php echo esc_attr($embed_key); ?>" />
+              <input type="text" name="dubbot_embed_key" value="<?php echo esc_attr($dubbot_embed_key); ?>" />
               <p><em>Contact <a href="mailto:help@dubbot.com">DubBot Support</a> to request an embed key.</em></p>
             </td>
           </tr>
@@ -80,7 +83,7 @@ function dubbot_settings_page() {
           <tr valign="top">
             <th scope="row">Editor Selector</th>
             <td>
-              <input type="text" name="editor_selector" value="<?php echo esc_attr($editor_selector); ?>" />
+              <input type="text" name="dubbot_editor_selector" value="<?php echo esc_attr($editor_selector); ?>" />
               <p><em>The CSS selector for the element containing the editor's content</em></p>
             </td>
           </tr>
@@ -88,7 +91,7 @@ function dubbot_settings_page() {
           <tr valign="top" style="display: <?php echo $is_advanced ? 'table-row' : 'none' ?>">
             <th scope="row">DubBot API URL</th>
             <td>
-              <input type="text" name="api_url" value="<?php echo esc_attr($api_url); ?>" />
+              <input type="text" name="dubbot_api_url" value="<?php echo esc_attr($api_url); ?>" />
             </td>
           </tr>
 
@@ -99,19 +102,19 @@ function dubbot_settings_page() {
   <?php
 }
 
-function get_dubbot_iframe_url($post_id) {
-  return get_dubbot_url($post_id, "iframe");
+function dubbot_iframe_url($post_id) {
+  return dubbot_url($post_id, "iframe");
 }
 
-function get_dubbot_json_url($post_id) {
-  return get_dubbot_url($post_id, "json");
+function dubbot_json_url($post_id) {
+  return dubbot_url($post_id, "json");
 }
 
-function get_dubbot_url($post_id, $type) {
+function dubbot_url($post_id, $type) {
   // Retrieve the embed_key from the plugin settings
-  $embed_key = get_option('embed_key');
+  $embed_key = get_option('dubbot_embed_key');
   $permalink = get_permalink($post_id);
-  $dubbot_host = get_option('api_url');
+  $dubbot_host = get_option('dubbot_api_url');
   if(!$dubbot_host):
     $dubbot_host = DUBBOT_API_URL;
   endif;
@@ -129,9 +132,9 @@ function get_dubbot_url($post_id, $type) {
   }
 }
 
-function get_dubbot_page_metadata($post_id) {
+function dubbot_page_metadata($post_id) {
   try {
-    $url = get_dubbot_json_url($post_id);
+    $url = dubbot_json_url($post_id);
     $request = wp_remote_get($url);
     $response = wp_remote_retrieve_body($request);
     if ($response === false) {
@@ -144,28 +147,28 @@ function get_dubbot_page_metadata($post_id) {
     return ['total_issues_count' => 'N/A'];
   }
 }
-function enqueue_iframe_plugin_scripts($hook) {
+function dubbot_enqueue_iframe_plugin_scripts($hook) {
   if(!is_user_logged_in()){
     return;
   }
 
-  $embed_key = get_option('embed_key');
+  $embed_key = get_option('dubbot_embed_key');
   if(empty($embed_key)) {
     return;
   }
 
-  $api_url = get_option('api_url');
+  $api_url = get_option('dubbot_api_url');
   $editor_selector = '.wp-site-blocks';
 
   if ($hook == 'post.php') {
-    $editor_selector = get_option('editor_selector');
+    $editor_selector = get_option('dubbot_editor_selector');
   }
 
 
   // Enqueue jQuery (if not already included)
   wp_enqueue_script('jquery');
-  wp_enqueue_script( 'jquery-ui-dialog');
-  wp_enqueue_script( 'jquery-ui-resizable');
+  wp_enqueue_script('jquery-ui-dialog');
+  wp_enqueue_script('jquery-ui-resizable');
   wp_enqueue_style('jquery-ui-css', plugin_dir_url(__FILE__) . 'css/jquery-ui.css', null, '1.0');
 
   // Enqueue custom JavaScript for the modal
@@ -176,8 +179,8 @@ function enqueue_iframe_plugin_scripts($hook) {
   wp_enqueue_style('dubbot-iframe', plugin_dir_url(__FILE__) . 'css/dubbot-iframe.css', null, '1.0');
 
   $post_id = isset($_GET['post']) ? intval($_GET['post']) : 0; // phpcs:ignore
-  $iframe_url = get_dubbot_iframe_url($post_id);
-  $metadata = get_dubbot_page_metadata($post_id);
+  $iframe_url = dubbot_iframe_url($post_id);
+  $metadata = dubbot_page_metadata($post_id);
   $localize_data = array(
     'iframeURL' => $iframe_url,
     'post_id' => $post_id,
@@ -190,8 +193,8 @@ function enqueue_iframe_plugin_scripts($hook) {
   // Pass PHP variables to JavaScript
   wp_localize_script('dubbot-iframe', 'dubbot', $localize_data);
 }
-add_action('admin_enqueue_scripts', 'enqueue_iframe_plugin_scripts');
-add_action('wp_enqueue_scripts', 'enqueue_iframe_plugin_scripts');
+add_action('admin_enqueue_scripts', 'dubbot_enqueue_iframe_plugin_scripts');
+add_action('wp_enqueue_scripts', 'dubbot_enqueue_iframe_plugin_scripts');
 
 function dubbot_add_settings_link($links) {
     // Check if the plugin is active and add the settings link
@@ -201,6 +204,5 @@ function dubbot_add_settings_link($links) {
     return $links;
 }
 add_filter('plugin_action_links_' . plugin_basename(__FILE__), 'dubbot_add_settings_link');
-
 
 ?>
