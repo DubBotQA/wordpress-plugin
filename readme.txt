@@ -2,10 +2,8 @@
 Contributors: syldubbot
 Donate link: https://dubbot.com
 Tags: accessibility, spelling, links, seo, web governance
-Requires at least: 5.0
 Tested up to: 6.7
-Requires PHP: 7.4
-Stable tag: 1.0.0
+Stable tag: 1.0.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -38,6 +36,16 @@ A DubBot account is required to use this plugin.
 5. Click `Install Now` and then `Activate`.
 6. Navigate to `Settings > DubBot` to enter your "Embed Key."
 
+== External services ==
+
+This plugin requires a [DubBot](https://dubbot.com) account render results from the [DubBot API](https://api.dubbot.com/).
+
+On the page/post view and edit screens, the plugin sends the Embed Key and the page/post's URL to the DubBot API to fetch and display any issues for the page.
+
+For new DubBot customers, [request a demo](https://dubbot.com/request-demo/index.html) to get started.
+For existing customers, contact DubBot support at [help@dubbot.com](mailto:help@dubbot.com) to request an Embed Key.
+
+DubBot [Privacy Policy](https://dubbot.com/privacy-policy.html) and [Terms of Service](https://dubbot.com/terms-of-service.html)
 
 == Troubleshooting ==
 

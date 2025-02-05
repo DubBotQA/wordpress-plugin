@@ -30,13 +30,13 @@ jQuery(document).ready(function($) {
 
   // Add button to the top menu
   waitForElementVisible('#wp-admin-bar-root-default', function() {
-    $('#wp-admin-bar-root-default').append(`<li role="group" id="wp-admin-bar-dubbot"><a class="ab-item" role="menuitem" style="cursor: pointer">DubBot (${ dubbot.metadata.total_issues_count })</a></li>`);
+    $('#wp-admin-bar-root-default').append(`<li role="group" id="wp-admin-bar-dubbot"><a class="ab-item" role="menuitem" style="cursor: pointer">DubBot (${ dubbot?.metadata?.total_issues_count || 'N/A' })</a></li>`);
     $('#wp-admin-bar-dubbot a').on('click', function() { $('#dubbot-modal').dialog(dialogOptions('#wp-admin-bar-dubbot')) });
   })
 
   // Add button to the editor by the Save button
   waitForElementVisible('.editor-header__settings', function() {
-    $('.editor-header__settings').prepend(`<a id="editor-header-settings-dubbot" class="components-button is-compact is-secondary">DubBot (${ dubbot.metadata.total_issues_count })</a>`);
+    $('.editor-header__settings').prepend(`<a id="editor-header-settings-dubbot" class="components-button is-compact is-secondary">DubBot (${ dubbot?.metadata?.total_issues_count || 'N/A' })</a>`);
     $('#editor-header-settings-dubbot').on('click', function() { $('#dubbot-modal').dialog(dialogOptions('#editor-header-settings-dubbot')) });
   });
 
