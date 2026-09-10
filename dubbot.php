@@ -2,7 +2,7 @@
 /*
 Plugin Name: DubBot
 Description: See DubBot results in WordPress
-Version: 1.0.1
+Version: 1.0.2
 Author: DubBot
 Author URI: https://dubbot.com
 License: GPL v2 or later

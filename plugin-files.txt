@@ -1,0 +1,5 @@
+# Files and directories shipped to WordPress.org and in the uploadable ZIP.
+dubbot.php
+readme.txt
+css
+js
