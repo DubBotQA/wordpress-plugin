@@ -1,9 +1,8 @@
 === DubBot ===
 Contributors: syldubbot
-Donate link: https://dubbot.com
 Tags: accessibility, spelling, links, seo, web governance
-Tested up to: 6.7
-Stable tag: 1.0.1
+Tested up to: 7.1
+Stable tag: 1.0.2
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -57,10 +56,16 @@ Those things could be part of template content, such as a header or footer, whic
 
 == Changelog ==
 
+= 1.0.2 =
+* Tested with WordPress 7.1.
+
 = 1.0.0 =
 * Initial release with support for displaying DubBot results in WordPress.
 
 == Upgrade Notice ==
+
+= 1.0.2 =
+Tested with WordPress 7.1.
 
 = 1.0.0 =
 This is the first version of the plugin. No upgrades are needed.
