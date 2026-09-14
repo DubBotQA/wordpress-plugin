@@ -1,7 +1,15 @@
 <?php
 
-if (!function_exists('dubbot_iframe_url') || !function_exists('dubbot_page_metadata')) {
+if (!function_exists('dubbot_get_setting') || !function_exists('dubbot_update_setting') || !function_exists('dubbot_get_api_url') || !function_exists('dubbot_get_editor_selector') || !function_exists('dubbot_iframe_url') || !function_exists('dubbot_page_metadata')) {
   WP_CLI::error('DubBot plugin functions were not loaded.');
+}
+
+if (dubbot_get_setting('dubbot_embed_key') !== 'test-key') {
+  WP_CLI::error('DubBot settings were not read from the WordPress options store.');
+}
+
+if (dubbot_get_api_url() !== get_option('dubbot_api_url') || dubbot_get_editor_selector() !== get_option('dubbot_editor_selector')) {
+  WP_CLI::error('DubBot setting defaults were not resolved correctly.');
 }
 
 $post_id = wp_insert_post(array(
@@ -15,7 +23,7 @@ if (is_wp_error($post_id) || !$post_id) {
   WP_CLI::error('Could not create the smoke-test page.');
 }
 
-$api_url = get_option('dubbot_api_url');
+$api_url = dubbot_get_api_url();
 $expected_embed_url = "$api_url/embeds/test-key?url=";
 $iframe_url = dubbot_iframe_url($post_id);
 if (strpos($iframe_url, $expected_embed_url) !== 0) {

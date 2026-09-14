@@ -26,6 +26,21 @@ wp() {
   "${compose[@]}" run --rm --no-deps --no-TTY wpcli "$@"
 }
 
+wait_for_wordpress_files() {
+  for _ in {1..30}; do
+    if wp core version >/dev/null 2>&1 && wp config get DB_NAME --type=constant >/dev/null 2>&1; then
+      return
+    fi
+
+    sleep 1
+  done
+
+  echo "WordPress files were not ready after 30 seconds." >&2
+  exit 1
+}
+
+wait_for_wordpress_files
+
 if ! wp core is-installed >/dev/null 2>&1; then
   wp core install \
     --url="http://localhost:${WORDPRESS_PORT:-8088}" \
