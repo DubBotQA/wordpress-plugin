@@ -22,6 +22,21 @@ if (strpos($iframe_url, $expected_embed_url) !== 0) {
   WP_CLI::error("Unexpected iframe URL: $iframe_url");
 }
 
+$custom_page_url = 'https://published.example.test/about/?source=wordpress&audience=staff';
+$custom_url_filter = static function ($url, $filtered_post_id) use ($post_id, $custom_page_url) {
+  return $filtered_post_id === $post_id ? $custom_page_url : $url;
+};
+add_filter('dubbot_page_url', $custom_url_filter, 10, 2);
+
+foreach (array(dubbot_iframe_url($post_id), dubbot_json_url($post_id)) as $embed_url) {
+  parse_str(wp_parse_url($embed_url, PHP_URL_QUERY), $query_args);
+  if (($query_args['url'] ?? null) !== $custom_page_url) {
+    WP_CLI::error('The custom page URL filter was not used for an embed URL.');
+  }
+}
+
+remove_filter('dubbot_page_url', $custom_url_filter, 10);
+
 $metadata = dubbot_page_metadata($post_id);
 if (!is_array($metadata) || ($metadata['total_issues_count'] ?? null) !== 3) {
   WP_CLI::error('The mock DubBot API response was not read correctly.');

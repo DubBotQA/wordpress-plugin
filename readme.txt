@@ -2,7 +2,7 @@
 Contributors: syldubbot
 Tags: accessibility, spelling, links, seo, web governance
 Tested up to: 7.1
-Stable tag: 1.0.2
+Stable tag: 1.0.3
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -48,6 +48,13 @@ DubBot [Privacy Policy](https://dubbot.com/privacy-policy.html) and [Terms of Se
 
 == Troubleshooting ==
 
+= Customizing the page URL =
+By default, DubBot sends WordPress's permalink for the page or post to the DubBot API. If the public URL differs from the WordPress permalink, such as when a domain mapping plugin is used, add a `dubbot_page_url` filter in a site-specific plugin or your theme's functions.php file:
+
+`add_filter('dubbot_page_url', function ($url, $post_id) { return domainmap_map_url($url); }, 10, 2);`
+
+The filter receives the WordPress permalink and the post ID, and must return the URL that DubBot should use. It applies to both the displayed results and the metadata used for editor highlighting.
+
 = Highlighting isn't working. =
 You may need to update the Editor Selector in the Settings. This is the [CSS Selector](https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_selectors) that corresponds to the HTML element containing the WordPress editor.
 
@@ -55,6 +62,9 @@ You may need to update the Editor Selector in the Settings. This is the [CSS Sel
 Those things could be part of template content, such as a header or footer, which is usually not seen while editing page content.
 
 == Changelog ==
+
+= 1.0.3 =
+* Added the `dubbot_page_url` filter for sites whose public URLs differ from WordPress permalinks.
 
 = 1.0.2 =
 * Tested with WordPress 7.1.
