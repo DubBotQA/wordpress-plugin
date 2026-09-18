@@ -2,7 +2,7 @@
 /*
 Plugin Name: DubBot
 Description: See DubBot results in WordPress
-Version: 1.0.2
+Version: 1.0.3
 Author: DubBot
 Author URI: https://dubbot.com
 License: GPL v2 or later
@@ -113,7 +113,7 @@ function dubbot_json_url($post_id) {
 function dubbot_url($post_id, $type) {
   // Retrieve the embed_key from the plugin settings
   $embed_key = get_option('dubbot_embed_key');
-  $permalink = get_permalink($post_id);
+  $page_url = apply_filters('dubbot_page_url', get_permalink($post_id), $post_id);
   $dubbot_host = get_option('dubbot_api_url');
   if(!$dubbot_host):
     $dubbot_host = DUBBOT_API_URL;
@@ -125,8 +125,7 @@ function dubbot_url($post_id, $type) {
     if ($type == "json") {
       $url .= '.json';
     }
-    $url .= '?url=' . $permalink;
-    return $url;
+    return add_query_arg('url', $page_url, $url);
   } else {
     return null;
   }
