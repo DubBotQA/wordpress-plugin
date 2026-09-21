@@ -125,7 +125,10 @@ function dubbot_url($post_id, $type) {
     if ($type == "json") {
       $url .= '.json';
     }
-    return add_query_arg('url', $page_url, $url);
+    if (empty($page_url)) {
+      return $url;
+    }
+    return add_query_arg('url', rawurlencode($page_url), $url);
   } else {
     return null;
   }
