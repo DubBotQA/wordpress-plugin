@@ -54,7 +54,7 @@ update_site_option('dubbot_allow_site_overrides', 1);
 $iframe_url = dubbot_iframe_url($post_id);
 $expected_url = dubbot_get_api_url() . '/embeds/' . $site_embed_key . '?url=';
 
-if (strpos($iframe_url, $expected_url) !== 0 || strpos($iframe_url, get_permalink($post_id)) === false) {
+if (strpos($iframe_url, $expected_url) !== 0 || strpos($iframe_url, rawurlencode(get_permalink($post_id))) === false) {
   WP_CLI::error("Unexpected multisite iframe URL: $iframe_url");
 }
 
