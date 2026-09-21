@@ -22,9 +22,23 @@ To test a different supported WordPress release, set `WORDPRESS_VERSION` before 
 WORDPRESS_VERSION=6.8-php8.3-apache ./scripts/test-plugin.sh
 ```
 
+## Multisite smoke test
+
+Run the multisite variant as well before a release:
+
+```sh
+./scripts/test-multisite-plugin.sh
+```
+
+It converts the test site into a subdirectory multisite network, adds a `/secondary/` site, network-activates the plugin with network default settings, and verifies site override behavior against the mock API. Inspect the network at <http://localhost:8088/wp-admin/network/> (`admin` / `admin`) and check both `Network Admin > Settings > DubBot` and a site's `Settings > DubBot`. It uses a separate Docker project, so clean it up separately:
+
+```sh
+./scripts/test-multisite-plugin.sh --clean
+```
+
 ## Release checklist
 
-1. Update **both** `Version:` in `dubbot.php` and `Stable tag:` in `readme.txt` to a new, matching version. Update `Tested up to:` only after the Docker test and manual editor check pass. Keep the changelog and upgrade notice current.
+1. Update **both** `Version:` in `dubbot.php` and `Stable tag:` in `readme.txt` to a new, matching version. Update `Tested up to:` only after the Docker tests (single-site and multisite) and manual editor check pass. Keep the changelog and upgrade notice current.
 2. Build the exact uploadable payload:
 
    ```sh

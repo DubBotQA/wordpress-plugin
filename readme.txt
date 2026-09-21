@@ -2,7 +2,7 @@
 Contributors: syldubbot
 Tags: accessibility, spelling, links, seo, web governance
 Tested up to: 7.1
-Stable tag: 1.0.3
+Stable tag: 1.1.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -43,7 +43,7 @@ Site administrators can use DubBot while editing their own site's content. By de
 
 == External services ==
 
-This plugin requires a [DubBot](https://dubbot.com) account render results from the [DubBot API](https://api.dubbot.com/).
+This plugin requires a [DubBot](https://dubbot.com) account to render results from the [DubBot API](https://api.dubbot.com/).
 
 On the page/post view and edit screens, the plugin sends the Embed Key and the page/post's URL to the DubBot API to fetch and display any issues for the page.
 
@@ -69,8 +69,10 @@ Those things could be part of template content, such as a header or footer, whic
 
 == Changelog ==
 
-= 1.0.3 =
+= 1.1.0 =
+* Added WordPress Multisite support: network-wide default settings at `Network Admin > Settings > DubBot`, with optional per-site overrides.
 * Added the `dubbot_page_url` filter for sites whose public URLs differ from WordPress permalinks.
+* Fixed page URLs containing query strings or special characters not being encoded when sent to the DubBot API.
 
 = 1.0.2 =
 * Tested with WordPress 7.1.
@@ -79,6 +81,9 @@ Those things could be part of template content, such as a header or footer, whic
 * Initial release with support for displaying DubBot results in WordPress.
 
 == Upgrade Notice ==
+
+= 1.1.0 =
+Adds WordPress Multisite support and the `dubbot_page_url` filter. On multisite networks, existing site Embed Keys keep working as site overrides; network administrators can now set network-wide defaults.
 
 = 1.0.2 =
 Tested with WordPress 7.1.
