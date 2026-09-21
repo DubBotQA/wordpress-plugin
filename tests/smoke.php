@@ -64,7 +64,8 @@ $localized = $wp_scripts->registered['dubbot-iframe']->extra['data'] ?? '';
 if (is_array($localized)) {
   $localized = implode("\n", $localized);
 }
-if (strpos($localized, $expected_embed_url) === false) {
+// No post is being edited here, so the page URL is empty and no url parameter is added.
+if (strpos($localized, "\"iframeURL\":\"$api_url/embeds/test-key\"") === false) {
   WP_CLI::error('The iframe URL was not passed to the browser script.');
 }
 
