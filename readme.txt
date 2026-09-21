@@ -35,6 +35,12 @@ A DubBot account is required to use this plugin.
 5. Click `Install Now` and then `Activate`.
 6. Navigate to `Settings > DubBot` to enter your "Embed Key."
 
+== WordPress Multisite ==
+
+On a WordPress multisite network, a network administrator should activate DubBot for the network from `Network Admin > Plugins`. Configure network defaults at `Network Admin > Settings > DubBot`.
+
+Site administrators can use DubBot while editing their own site's content. By default, they can also override the network defaults at `Settings > DubBot` for their own site. A network administrator can disable site overrides from the DubBot network settings page; existing site-specific settings are preserved but ignored while overrides are disabled.
+
 == External services ==
 
 This plugin requires a [DubBot](https://dubbot.com) account render results from the [DubBot API](https://api.dubbot.com/).

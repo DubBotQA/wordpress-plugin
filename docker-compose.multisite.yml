@@ -1,0 +1,8 @@
+services:
+  wordpress:
+    environment:
+      WORDPRESS_CONFIG_EXTRA: |
+        define('WP_ALLOW_MULTISITE', true);
+
+  wpcli:
+    user: root
